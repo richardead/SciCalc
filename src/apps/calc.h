@@ -12,7 +12,7 @@ extern "C" {
   #include "tinyexpr.h"
 }
 
-String textInput = "";
+String textInput = "x^3";
 int cursorPosition = 0;
 int layer = 0;
 
@@ -38,7 +38,7 @@ void displayGraph(double top, double bottom, double left, double right) {
     }
 
     if(left < 0 && right > 0) {
-        double pos = right / Xdiff;
+        double pos = -left / Xdiff;
         int x = pos * 320;
         display.drawLine(x, 0, x, 240, ILI9341_WHITE);
     }
@@ -49,9 +49,11 @@ void displayGraph(double top, double bottom, double left, double right) {
 
     for(x = (left + step/2); x < (right - step/2); x += step) {
         double y = te_eval(expr);
-        double X = (x - left) / Xdiff, Y = (y - bottom) / Ydiff;
-        int realX = (1.00-X) * 320, realY = (1.00-Y) * 240;
-        display.drawPixel(realX, realY, ILI9341_CYAN);
+        double X = (x - left) / Xdiff, Y = (top - y) / Ydiff;
+        if(Y >= 0 && Y < 1) {
+            int realX = X * 320, realY = Y * 240;
+            display.drawPixel(realX, realY, ILI9341_CYAN);
+        }
     }
     
     te_free(expr);
@@ -72,12 +74,12 @@ void graph(double top, double bottom, double left, double right) {
                         bottom += scale * 24;
                         break;
                     case 9: // left
-                        left += scale * 32;
-                        right += scale * 32;
-                        break;
-                    case 11: // right
                         left -= scale * 32;
                         right -= scale * 32;
+                        break;
+                    case 11: // right
+                        left += scale * 32;
+                        right += scale * 32;
                         break;
                     case 16: // down
                         top -= scale * 24;
